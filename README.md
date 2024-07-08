@@ -1,2 +1,2 @@
-从今天起开始研究编程
-今天不想研究了
+message = 'hello world'
+print "message"
