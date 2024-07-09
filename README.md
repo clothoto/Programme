@@ -1,2 +1,2 @@
-message = 'hello world'
-print "message"
+hello world
+
