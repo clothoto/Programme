@@ -1,0 +1,135 @@
+import pygame
+import random
+
+# 初始化Pygame
+pygame.init()
+
+# 屏幕大小
+screen_width = 300
+screen_height = 600
+block_size = 30
+
+# 颜色
+colors = [
+    (0, 0, 0),
+    (255, 0, 0),
+    (0, 255, 0),
+    (0, 0, 255),
+    (255, 255, 0),
+    (255, 0, 255),
+    (0, 255, 255),
+    (255, 165, 0)
+]
+
+# 形状
+shapes = [
+    [[1, 1, 1, 1]],  # I
+    [[1, 1, 1], [0, 1, 0]],  # T
+    [[1, 1], [1, 1]],  # O
+    [[1, 1, 0], [0, 1, 1]],  # S
+    [[0, 1, 1], [1, 1, 0]],  # Z
+    [[1, 1, 1], [1, 0, 0]],  # L
+    [[1, 1, 1], [0, 0, 1]]  # J
+]
+
+class Tetris:
+    def __init__(self, height, width):
+        self.height = height
+        self.width = width
+        self.board = [[0 for _ in range(width)] for _ in range(height)]
+        self.gameover = False
+        self.score = 0
+        self.current_piece = self.new_piece()
+        self.next_piece = self.new_piece()
+        self.piece_x = 0
+        self.piece_y = 0
+
+    def new_piece(self):
+        return random.choice(shapes)
+
+    def rotate_piece(self):
+        self.current_piece = [list(row) for row in zip(*self.current_piece[::-1])]
+
+    def valid_move(self, dx, dy, piece):
+        for y, row in enumerate(piece):
+            for x, cell in enumerate(row):
+                if cell:
+                    new_x = self.piece_x + x + dx
+                    new_y = self.piece_y + y + dy
+                    if new_x < 0 or new_x >= self.width or new_y >= self.height:
+                        return False
+                    if self.board[new_y][new_x]:
+                        return False
+        return True
+
+    def freeze_piece(self):
+        for y, row in enumerate(self.current_piece):
+            for x, cell in enumerate(row):
+                if cell:
+                    self.board[self.piece_y + y][self.piece_x + x] = cell
+        self.clear_lines()
+        self.current_piece = self.next_piece
+        self.next_piece = self.new_piece()
+        self.piece_x = 0
+        self.piece_y = 0
+        if not self.valid_move(0, 0, self.current_piece):
+            self.gameover = True
+
+    def clear_lines(self):
+        new_board = [row for row in self.board if any(cell == 0 for cell in row)]
+        lines_cleared = self.height - len(new_board)
+        self.board = [[0 for _ in range(self.width)] for _ in range(lines_cleared)] + new_board
+        self.score += lines_cleared
+
+    def drop_piece(self):
+        if self.valid_move(0, 1, self.current_piece):
+            self.piece_y += 1
+        else:
+            self.freeze_piece()
+
+    def move(self, dx):
+        if self.valid_move(dx, 0, self.current_piece):
+            self.piece_x += dx
+
+    def update(self):
+        self.drop_piece()
+
+    def draw(self, screen):
+        screen.fill((0, 0, 0))
+        for y, row in enumerate(self.board):
+            for x, cell in enumerate(row):
+                if cell:
+                    pygame.draw.rect(screen, colors[cell], (x * block_size, y * block_size, block_size, block_size))
+        for y, row in enumerate(self.current_piece):
+            for x, cell in enumerate(row):
+                if cell:
+                    pygame.draw.rect(screen, colors[cell], ((self.piece_x + x) * block_size, (self.piece_y + y) * block_size, block_size, block_size))
+        pygame.display.flip()
+
+def main():
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    clock = pygame.time.Clock()
+    game = Tetris(screen_height // block_size, screen_width // block_size)
+
+    while not game.gameover:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game.gameover = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    game.move(-1)
+                if event.key == pygame.K_RIGHT:
+                    game.move(1)
+                if event.key == pygame.K_UP:
+                    game.rotate_piece()
+                if event.key == pygame.K_DOWN:
+                    game.drop_piece()
+
+        game.update()
+        game.draw(screen)
+        clock.tick(10)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
