@@ -1,0 +1,13 @@
+# 定义一个函数来计算两个数的和
+def add_numbers(a, b):
+    return a + b
+
+# 输入两个数
+num1 = float(input("请输入第一个数: "))
+num2 = float(input("请输入第二个数: "))
+
+# 计算和
+result = add_numbers(num1, num2)
+
+# 输出结果
+print("两个数的和是:", result)
