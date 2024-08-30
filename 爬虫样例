@@ -1,0 +1,17 @@
+import requests
+from bs4 import BeautifulSoup
+
+def crawl_website(url):
+    # 发送HTTP请求到指定的URL
+    response = requests.get(url)
+    
+    # 如果请求成功
+    if response.status_code == 200:
+        # 使用BeautifulSoup解析HTML内容
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # 找到所有的标题标签并打印出来
+        for header in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
+            print(header.text.strip())
+    else:
+        print(f"Failed to retrieve the page. Status code: {response.status_code}")
