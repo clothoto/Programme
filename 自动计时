@@ -1,0 +1,14 @@
+import time
+
+def countdown_timer(seconds):
+    while seconds:
+        mins, secs = divmod(seconds, 60)
+        timer = f"{mins:02d}:{secs:02d}"
+        print(timer, end='\r')
+        time.sleep(1)
+        seconds -= 1
+    print("时间到！")
+
+# 输入定时时间（秒）
+total_seconds = int(input("请输入计时器的时间（秒）："))
+countdown_timer(total_seconds)
